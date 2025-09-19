@@ -39,29 +39,7 @@
 
     <issue
         id="NewApi"
-        message="`&lt;com.wireguard.android.activity.TunnelToggleActivity>` requires API level 24 (current min is 21)"
-        errorLine1="        &lt;activity"
-        errorLine2="        ^">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="52"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;com.wireguard.android.QuickTileService>` requires API level 24 (current min is 21)"
-        errorLine1="        &lt;service"
-        errorLine2="        ^">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="139"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;com.wireguard.android.preference.QuickTilePreference>` requires API level 33 (current min is 21)"
+        message="`&lt;com.wireguard.android.preference.QuickTilePreference>` requires API level 33 (current min is 24)"
         errorLine1="    &lt;com.wireguard.android.preference.QuickTilePreference android:key=&quot;quick_tile&quot; />"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -77,13 +55,13 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/com/wireguard/android/QuickTileService.kt"
-            line="69"
+            line="68"
             column="50"/>
     </issue>
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is 21)"
+        message="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is 24)"
         errorLine1="        android:enableOnBackInvokedCallback=&quot;true&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -94,7 +72,7 @@
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 21)"
+        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 24)"
         errorLine1="        android:singleLineTitle=&quot;false&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -105,7 +83,7 @@
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 21)"
+        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 24)"
         errorLine1="        android:singleLineTitle=&quot;false&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -116,7 +94,7 @@
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 21)"
+        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 24)"
         errorLine1="        android:singleLineTitle=&quot;false&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -127,7 +105,7 @@
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 21)"
+        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 24)"
         errorLine1="        android:singleLineTitle=&quot;false&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -138,7 +116,7 @@
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 21)"
+        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 24)"
         errorLine1="        android:singleLineTitle=&quot;false&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -149,7 +127,7 @@
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 21)"
+        message="Attribute `singleLineTitle` is only used in API level 26 and higher (current min is 24)"
         errorLine1="    &lt;com.wireguard.android.preference.DonatePreference android:singleLineTitle=&quot;false&quot; />"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -187,7 +165,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/wireguard/android/QuickTileService.kt"
-            line="113"
+            line="112"
             column="34"/>
     </issue>
 
@@ -3475,7 +3453,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 21"
+        message="Unnecessary; `SDK_INT` is never &lt; 24"
         errorLine1="        if (BuildConfig.MIN_SDK_VERSION > Build.VERSION.SDK_INT) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3759,7 +3737,7 @@
         errorLine2="                                                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/wireguard/android/QuickTileService.kt"
-            line="83"
+            line="82"
             column="110"/>
     </issue>
 
@@ -3770,7 +3748,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/wireguard/android/QuickTileService.kt"
-            line="116"
+            line="115"
             column="17"/>
     </issue>
 
@@ -3781,7 +3759,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/wireguard/android/QuickTileService.kt"
-            line="122"
+            line="121"
             column="13"/>
     </issue>
 
@@ -3792,7 +3770,7 @@
         errorLine2="        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/wireguard/android/widget/SlashDrawable.kt"
-            line="31"
+            line="30"
             column="9"/>
     </issue>
 
