@@ -1,0 +1,22 @@
+Name: WireGuard for Android
+Short Name: wireguard-android
+URL: https://git.zx2c4.com/wireguard-android
+Version: 1.0.20250531
+Date: 2025-05-31
+License: Apache 2.0
+License File: COPYING
+Security Critical: yes
+
+Description:
+WireGuard is a fast, modern, secure VPN tunnel. This is the Android
+implementation used by Brave VPN.
+
+The library consists of:
+- Java sources for configuration and tunnel management
+- Go implementation of the WireGuard protocol (libwg-go.so)
+- C tools for command-line interface (libwg.so, libwg-quick.so)
+
+Local Modifications:
+- Added BUILD.gn to build with GN instead of Gradle
+- C code built directly with GN
+- Go code built via existing Makefile

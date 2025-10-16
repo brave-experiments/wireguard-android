@@ -21,7 +21,42 @@ import androidx.annotation.Nullable;
  */
 @NonNullForAll
 public class Statistics {
-    public record PeerStats(long rxBytes, long txBytes, long latestHandshakeEpochMillis) { }
+    // Converted from record to traditional class for Chromium build compatibility
+    // Original: public record PeerStats(long rxBytes, long txBytes, long latestHandshakeEpochMillis) { }
+    public static final class PeerStats {
+        private final long rxBytes;
+        private final long txBytes;
+        private final long latestHandshakeEpochMillis;
+
+        public PeerStats(long rxBytes, long txBytes, long latestHandshakeEpochMillis) {
+            this.rxBytes = rxBytes;
+            this.txBytes = txBytes;
+            this.latestHandshakeEpochMillis = latestHandshakeEpochMillis;
+        }
+
+        public long rxBytes() { return rxBytes; }
+        public long txBytes() { return txBytes; }
+        public long latestHandshakeEpochMillis() { return latestHandshakeEpochMillis; }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof PeerStats)) return false;
+            PeerStats other = (PeerStats) obj;
+            return rxBytes == other.rxBytes && txBytes == other.txBytes && latestHandshakeEpochMillis == other.latestHandshakeEpochMillis;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(rxBytes, txBytes, latestHandshakeEpochMillis);
+        }
+
+        @Override
+        public String toString() {
+            return "PeerStats[rxBytes=" + rxBytes + ", txBytes=" + txBytes + ", latestHandshakeEpochMillis=" + latestHandshakeEpochMillis + "]";
+        }
+    }
+
     private final Map<Key, PeerStats> stats = new HashMap<>();
     private long lastTouched = SystemClock.elapsedRealtime();
 

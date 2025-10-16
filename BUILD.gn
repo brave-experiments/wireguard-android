@@ -1,0 +1,197 @@
+# Copyright (c) 2025 The Brave Authors. All rights reserved.
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this file,
+# You can obtain one at https://mozilla.org/MPL/2.0/.
+
+import("//build/config/android/config.gni")
+import("//build/config/android/rules.gni")
+import("//build/config/clang/clang.gni")
+import("//build/config/sysroot.gni")
+import("//build/config/compiler/compiler.gni")
+
+# This target builds the WireGuard Android tunnel library from source.
+# C code is built directly with GN. Go code uses the upstream Makefile.
+
+_wireguard_package_name = "com.wireguard.android"
+
+# Common configuration for WireGuard C libraries
+config("wireguard_config") {
+  include_dirs = [
+    "tunnel/tools/wireguard-tools/src",
+    "tunnel/tools/wireguard-tools/src/uapi/linux",
+    "tunnel/tools/ndk-compat",
+  ]
+
+  cflags_c = [
+    # Must come after other std flags to override them
+    "-std=gnu11",
+  ]
+
+  cflags = [
+    "-include",
+    rebase_path("tunnel/tools/ndk-compat/compat.h", root_build_dir),
+    # Disable Chromium's strict warnings for third-party code
+    "-Wno-unsafe-buffer-usage",
+    "-Wno-implicit-fallthrough",
+    "-Wno-shadow",
+    "-Wno-gnu-pointer-arith",
+    "-Wno-macro-redefined",
+    "-Wno-unreachable-code-return",
+    "-Wno-sign-compare",
+    "-Wno-implicit-function-declaration",
+  ]
+
+  defines = [ "RUNSTATEDIR=\"/data/data/${_wireguard_package_name}/cache\"" ]
+
+  ldflags = [ "-Wl,--build-id=none" ]
+}
+
+# Build libwg-quick.so - WireGuard quick setup tool
+loadable_module("libwg-quick") {
+  output_name = "wg-quick"
+  output_dir = "$target_out_dir/$target_cpu"
+
+  sources = [
+    "tunnel/tools/ndk-compat/compat.c",
+    "tunnel/tools/wireguard-tools/src/wg-quick/android.c",
+  ]
+
+  configs += [ ":wireguard_config" ]
+  # Remove Chromium's clang plugins for third-party code
+  configs -= [
+    "//build/config/clang:find_bad_constructs",
+    "//build/config/clang:unsafe_buffers",
+  ]
+
+  defines = [ "WG_PACKAGE_NAME=\"${_wireguard_package_name}\"" ]
+
+  libs = [ "dl" ]
+}
+
+# Build libwg.so - WireGuard command-line tool
+loadable_module("libwg") {
+  output_name = "wg"
+  output_dir = "$target_out_dir/$target_cpu"
+
+  sources = [
+    "tunnel/tools/ndk-compat/compat.c",
+    "tunnel/tools/wireguard-tools/src/config.c",
+    "tunnel/tools/wireguard-tools/src/curve25519.c",
+    "tunnel/tools/wireguard-tools/src/encoding.c",
+    "tunnel/tools/wireguard-tools/src/genkey.c",
+    "tunnel/tools/wireguard-tools/src/ipc.c",
+    "tunnel/tools/wireguard-tools/src/pubkey.c",
+    "tunnel/tools/wireguard-tools/src/set.c",
+    "tunnel/tools/wireguard-tools/src/setconf.c",
+    "tunnel/tools/wireguard-tools/src/show.c",
+    "tunnel/tools/wireguard-tools/src/showconf.c",
+    "tunnel/tools/wireguard-tools/src/terminal.c",
+    "tunnel/tools/wireguard-tools/src/wg.c",
+  ]
+
+  configs += [ ":wireguard_config" ]
+  # Remove Chromium's clang plugins for third-party code
+  configs -= [
+    "//build/config/clang:find_bad_constructs",
+    "//build/config/clang:unsafe_buffers",
+  ]
+}
+
+# Build libwg-go.so - WireGuard Go implementation
+# Use the upstream Makefile since GN doesn't support Go
+action("libwg-go") {
+  script = "//build/gn_run_binary.py"
+
+  # Makefile location
+  _makefile_dir = "tunnel/tools/libwg-go"
+
+  sources = [
+    "tunnel/tools/libwg-go/Makefile",
+    "tunnel/tools/libwg-go/api-android.go",
+    "tunnel/tools/libwg-go/go.mod",
+  ]
+
+  # Determine architecture mapping
+  if (target_cpu == "arm") {
+    _arch_name = "arm"
+    _target_triple = "armv7a-linux-androideabi21"
+  } else if (target_cpu == "arm64") {
+    _arch_name = "arm64"
+    _target_triple = "aarch64-linux-android21"
+  } else if (target_cpu == "x86") {
+    _arch_name = "x86"
+    _target_triple = "i686-linux-android21"
+  } else if (target_cpu == "x64") {
+    _arch_name = "x86_64"
+    _target_triple = "x86_64-linux-android21"
+  }
+
+  outputs = [ "$target_out_dir/$target_cpu/libwg-go.so" ]
+
+  # Use Chromium's clang toolchain - ABSOLUTE paths for Go
+  _clang_path = rebase_path("$clang_base_path/bin/clang")
+  _sysroot_path = rebase_path(sysroot)
+
+  # Use source tree paths for build artifacts to avoid gen/ directory license issues
+  _build_dir_abs = rebase_path("tunnel/tools/libwg-go/.gobuild")
+  _gradle_cache_abs = rebase_path("tunnel/tools/libwg-go/.gradle_cache")
+  _dest_dir_abs = rebase_path("$target_out_dir/$target_cpu")
+
+  # Invoke make with proper environment using Chromium's clang with absolute paths
+  # Use --unwindlib=none to avoid libunwind.a dependency which doesn't exist in Chromium's clang
+  args = [
+    "/usr/bin/make",
+    "-C",
+    rebase_path(_makefile_dir, root_build_dir),
+    "ANDROID_ARCH_NAME=$_arch_name",
+    "ANDROID_PACKAGE_NAME=$_wireguard_package_name",
+    "GRADLE_USER_HOME=$_gradle_cache_abs",
+    "CC=$_clang_path --target=$_target_triple --sysroot=$_sysroot_path",
+    "CFLAGS=",
+    "LDFLAGS=-Wl,--build-id=none -fuse-ld=lld --rtlib=compiler-rt --unwindlib=none",
+    "SYSROOT=$_sysroot_path",
+    "TARGET=$_target_triple",
+    "DESTDIR=$_dest_dir_abs",
+    "BUILDDIR=$_build_dir_abs",
+  ]
+}
+
+# Build the Java tunnel library
+android_library("com_wireguard_android_java") {
+  chromium_code = false
+
+  sources = [
+    "tunnel/src/main/java/com/wireguard/android/backend/Backend.java",
+    "tunnel/src/main/java/com/wireguard/android/backend/BackendException.java",
+    "tunnel/src/main/java/com/wireguard/android/backend/GoBackend.java",
+    "tunnel/src/main/java/com/wireguard/android/backend/Statistics.java",
+    "tunnel/src/main/java/com/wireguard/android/backend/Tunnel.java",
+    "tunnel/src/main/java/com/wireguard/android/backend/WgQuickBackend.java",
+    "tunnel/src/main/java/com/wireguard/android/util/RootShell.java",
+    "tunnel/src/main/java/com/wireguard/android/util/SharedLibraryLoader.java",
+    "tunnel/src/main/java/com/wireguard/android/util/ToolsInstaller.java",
+    "tunnel/src/main/java/com/wireguard/config/Attribute.java",
+    "tunnel/src/main/java/com/wireguard/config/BadConfigException.java",
+    "tunnel/src/main/java/com/wireguard/config/Config.java",
+    "tunnel/src/main/java/com/wireguard/config/InetAddresses.java",
+    "tunnel/src/main/java/com/wireguard/config/InetEndpoint.java",
+    "tunnel/src/main/java/com/wireguard/config/InetNetwork.java",
+    "tunnel/src/main/java/com/wireguard/config/Interface.java",
+    "tunnel/src/main/java/com/wireguard/config/ParseException.java",
+    "tunnel/src/main/java/com/wireguard/config/Peer.java",
+    "tunnel/src/main/java/com/wireguard/crypto/Curve25519.java",
+    "tunnel/src/main/java/com/wireguard/crypto/Key.java",
+    "tunnel/src/main/java/com/wireguard/crypto/KeyFormatException.java",
+    "tunnel/src/main/java/com/wireguard/crypto/KeyPair.java",
+    "tunnel/src/main/java/com/wireguard/util/NonNullForAll.java",
+  ]
+
+  deps = [
+    ":libwg",
+    ":libwg-quick",
+    ":libwg-go",
+    "//third_party/android_deps:com_google_code_findbugs_jsr305_java",
+    "//third_party/androidx:androidx_annotation_annotation_java",
+    "//third_party/androidx:androidx_collection_collection_java",
+  ]
+}
